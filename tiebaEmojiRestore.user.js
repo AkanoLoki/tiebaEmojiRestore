@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         百度贴吧滑稽恢复
 // @namespace    URL Not Available
-// @version      1.2
+// @version      2.0
 // @description  替换百度贴吧滑稽HashTag为正常表情
 // @author       AkanoLoki
 // @match        http://tieba.baidu.com/*
@@ -19,12 +19,42 @@
     var lzlstr = 'go die';
     var loadimg = '<img class="loading_reply" src="//tb2.bdstatic.com/tb/static-pb/img/loading_69032b0.gif">';
 
-    mainReplace();
+    //Target Attribute Mapping
+    var tgtType = 'a';
+    var tgtClass = 'topic-tag';
+    var tgtTarget = '_blank';
+    var tgtHref = '/hottopic/browse/hottopic?topic_name=%E6%BB%91%E7%A8%BDgo%20die';
+    var tgtInnerHTML = '#滑稽go die#';
 
-    $('body').on('mouseover', function () {
-        if(document.body.innerHTML.indexOf(loadimg) == -1){
-            lzlReplace();
-        }
+    //Smiley Attribute Mapping
+    var attType = 'img';
+    var attClass = 'BDE_Smiley';
+    var attWidth = '30';
+    var attHeight = '30';
+    var attChangedSize = "false";
+    var attSrc = 'http://static.tieba.baidu.com/tb/editor/images/client/image_emoticon25.png';
+
+
+    //Create sample target element
+    var tgtElement = document.createElement(tgtType);
+    tgtElement.setAttribute('class',tgtClass);
+    tgtElement.setAttribute('target',tgtTarget);
+    tgtElement.setAttribute('href',tgtHref);
+    tgtElement.innerHTML = tgtInnerHTML;
+
+
+    mainReplace();
+    window.onload = topicBoxHide();
+
+    $(document).ready(function() {
+        $('body').mouseover(function() {
+            var elementDiv = document.body.getElementsByClassName('core_reply_wrapper');
+            for(var count = 0; count < elementDiv.length; count++){
+                if(isScrolledIntoView(elementDiv.item(count))){
+                    lzlReplace(elementDiv.item(count));
+                }
+            }
+        });
     });
 
     function mainReplace(){
@@ -33,10 +63,32 @@
         }
     }
 
-    function lzlReplace() {
-        if(document.body.innerHTML.indexOf(lzltgt) > -1){
-            document.body.innerHTML = document.body.innerHTML.replace(lzltgt, lzlrep);
+    function lzlReplace(element) {
+        var elementCol = element.getElementsByClassName('topic-tag');
+        for( var i = 0; i < elementCol.length; i++ ) {
+            var tempElement = document.createElement(attType);
+            tempElement.setAttribute('class', attClass);
+            tempElement.setAttribute('width', attWidth);
+            tempElement.setAttribute('height', attHeight);
+            tempElement.setAttribute('changedsize', attChangedSize);
+            tempElement.setAttribute('src', attSrc);
+            if(elementCol !== '' && elementCol.item(i) !== '' && elementCol.item(i).innerHTML.indexOf(lzlstr) > -1){
+                elementCol.item(i).replaceWith(tempElement);
+            }
         }
+    }
+
+    function topicBoxHide(){
+        var topicBox = document.body.getElementsByClassName('topic_list_box');
+        topicBox.item(0).remove();
+    }
+
+    function isScrolledIntoView(el) {
+        var elemTop = el.getBoundingClientRect().top;
+        var elemBottom = el.getBoundingClientRect().bottom;
+
+        var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+        return isVisible;
     }
 
 })();
