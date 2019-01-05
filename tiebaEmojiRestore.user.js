@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         百度贴吧滑稽恢复
 // @namespace    URL Not Available
-// @version      1.0
+// @version      1.1
 // @description  替换百度贴吧滑稽HashTag为正常表情
 // @author       AkanoLoki
-// @match        http://tieba.baidu.com/p/*
+// @match        http://tieba.baidu.com/*
 // @grant        none
 // ==/UserScript==
 
